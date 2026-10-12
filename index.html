@@ -1,11 +1,10 @@
 <!doctype html>
 <html lang="vi">
 <head>
- <meta property="og:title" content="Bấm vô đi mất nick ráng chịu nha thằng chồng chó">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#6f9ed4">
-<title>Bấm vô đi mất nick ráng chịu nha thằng chồng chó</title>
+<title>Một món quà cho anh 💙</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Caveat:wght@500;600;700&family=Dancing+Script:wght@500;600;700&family=Fredoka:wght@400;500;600;700&family=Pacifico&family=Patrick+Hand&family=Kalam:wght@400;700&family=Nunito:wght@400;500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -101,6 +100,10 @@ button{font:inherit;cursor:pointer}
 .final.show{display:block;animation:pageIn .7s ease}
 /* V25: keep the duplicate inline finale hidden; use only the full-screen message */
 /* V30: maximum answer-effect gain; restore background music gain to 0.18 */
+/* V31: remove balloons from candle page and show finale immediately after flames go out */
+/* V33: hide the empty feedback box visually while keeping its JS target intact */
+/* V34: restore answer feedback element so overlays and answer effects keep working */
+#feedback{display:none!important}
 #p3 #final{display:none!important}
 
 /* responsive */
@@ -419,6 +422,7 @@ p,.feedback,.tiny,.sub{font-family:"Quicksand","Baloo 2",sans-serif}
     <button class="choice" onclick="pick('D',this)">D. Một đống tiền</button>
     <button class="choice" onclick="pick('E',this)">E. Thiệt là nhìu tình iu</button>
   </div>
+  <div class="feedback" id="feedback" aria-hidden="true"></div>
   <div class="nav"><button class="btn alt" onclick="go(0)">Quay lại</button><button class="btn" onclick="go(2)">Tiếp theo</button></div>
 </section>
 
@@ -511,6 +515,7 @@ function pick(k,el){
  E:'Sai rồi. Có cái con khỉ, anh có yêu em đâu mà kêu em yêu anh nhiều. Chọn cái khác đi 😏'
  };
  // Show the response as a full-screen overlay instead of inside the small box.
+ document.getElementById('feedback').textContent='';
  const overlay=document.getElementById('answerOverlay');
  const answerCard=document.getElementById('answerCard');
  answerCard.classList.toggle('correct',k==='C');
@@ -605,8 +610,8 @@ function blow(){
    document.querySelectorAll('#p3 .age-flame').forEach((f,i)=>{
      blowSequenceTimer.push(setTimeout(()=>{
        f.classList.add('flame-blown');
-       blowSequenceTimer.push(setTimeout(()=>f.classList.add('off'),850));
-     },i*850));
+       blowSequenceTimer.push(setTimeout(()=>f.classList.add('off'),650));
+     },i*500));
    });
  },450));
  // Leave time for viewers to see the wind arrive and each flame go out.
@@ -619,8 +624,7 @@ function blow(){
    confetti();
    spawnHearts(24);
    spawn3DHearts(6);
-   spawn3DBalloons(4);
- },3300));
+ },1800));
 }
 function visualFireworks(count=16){
  const colors=['#ff78b7','#ffd166','#8bd3ff','#b69cff','#8ff0c5','#ffffff'];

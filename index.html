@@ -1,11 +1,10 @@
 <!doctype html>
 <html lang="vi">
 <head>
- <meta property="og:title" content="Bấm vô đi mất nick ráng chịu nha thằng chồng chó">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#6f9ed4">
-<title>Bấm vô đi mất nick ráng chịu nha thằng chồng chó</title>
+<title>Một món quà cho anh 💙</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Caveat:wght@500;600;700&family=Dancing+Script:wght@500;600;700&family=Fredoka:wght@400;500;600;700&family=Pacifico&family=Patrick+Hand&family=Kalam:wght@400;700&family=Nunito:wght@400;500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -676,13 +675,25 @@ let audioCtx=null,playing=false,musicTimer=null;
 let fireworkTimers=[];
 let applauseTimers=[];
 function getAudio(){
- audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
- if(audioCtx.state==='suspended') audioCtx.resume();
+ const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+ if(!AudioContextClass) return null;
+ audioCtx=audioCtx||new AudioContextClass();
+ if(audioCtx.state==='suspended') audioCtx.resume().catch(()=>{});
  return audioCtx;
 }
+// Mobile Safari/Chrome require audio to be unlocked by a real user gesture.
+// Resume the audio context on the first tap without automatically starting music.
+function unlockAudio(){
+ try{
+  const ctx=getAudio();
+  if(ctx && ctx.state==='suspended') ctx.resume().catch(()=>{});
+ }catch(e){}
+}
+document.addEventListener('pointerdown',unlockAudio,{once:true,passive:true});
+document.addEventListener('touchstart',unlockAudio,{once:true,passive:true});
 function playAnswerSound(correct){
  try{
-  const ctx=getAudio(), now=ctx.currentTime;
+  const ctx=getAudio(); if(!ctx)return; const now=ctx.currentTime;
   const seq=correct ? [{f:659,d:.13},{f:784,d:.15},{f:1047,d:.24}] : [{f:330,d:.16},{f:247,d:.22}];
   seq.forEach((n,i)=>{
    const osc=ctx.createOscillator(), gain=ctx.createGain();
@@ -696,7 +707,7 @@ function playAnswerSound(correct){
 }
 function fireworkBurst(){
  try{
-  const ctx=getAudio(), now=ctx.currentTime;
+  const ctx=getAudio(); if(!ctx)return; const now=ctx.currentTime;
   // A short rising whistle followed by a sparkling crackle.
   const osc=ctx.createOscillator(), gain=ctx.createGain();
   osc.type='sawtooth'; osc.frequency.setValueAtTime(260+Math.random()*180,now);
@@ -721,7 +732,7 @@ function stopFireworkShow(){fireworkTimers.forEach(clearTimeout);fireworkTimers=
 function playApplause(){
  stopApplause();
  try{
-  const ctx=getAudio();
+  const ctx=getAudio(); if(!ctx)return;
   for(let i=0;i<24;i++){
    const timer=setTimeout(()=>{
     try{
@@ -760,8 +771,10 @@ function tone(name,dur,when){
 }
 function playMusic(){
  if(playing)return;
- audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
- if(audioCtx.state==='suspended')audioCtx.resume();
+ const AudioContextClass=window.AudioContext||window.webkitAudioContext;
+ if(!AudioContextClass)return;
+ audioCtx=audioCtx||new AudioContextClass();
+ if(audioCtx.state==='suspended')audioCtx.resume().catch(()=>{});
  playing=true;document.getElementById('musicBtn').classList.add('playing');
  let t=audioCtx.currentTime+.05;
  function loop(){

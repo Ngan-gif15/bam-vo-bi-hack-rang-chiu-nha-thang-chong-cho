@@ -1,11 +1,10 @@
 <!doctype html>
 <html lang="vi">
 <head>
- <meta property="og:title" content="Bấm vô đi mất nick ráng chịu nha thằng chồng chó">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#6f9ed4">
-<title>Bấm vô đi mất nick ráng chịu nha thằng chồng chó</title>
+<title>Một món quà cho anh 💙</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Caveat:wght@500;600;700&family=Dancing+Script:wght@500;600;700&family=Fredoka:wght@400;500;600;700&family=Pacifico&family=Patrick+Hand&family=Kalam:wght@400;700&family=Nunito:wght@400;500;600;700;800&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -366,6 +365,29 @@ p,.feedback,.tiny,.sub{font-family:"Quicksand","Baloo 2",sans-serif}
 @keyframes gustSweep{0%{opacity:0;transform:translateY(0) scale(.86)}14%{opacity:.65}38%{opacity:.92;transform:translateY(-20vh) scale(.92)}68%{opacity:.85;transform:translateY(-48vh) scale(1)}88%{opacity:.45;transform:translateY(-64vh) scale(1.03)}100%{opacity:0;transform:translateY(-72vh) scale(1.05)}}
 @keyframes cakeBreeze{0%,100%{translate:0 0}35%{translate:2px 0}70%{translate:-1px 0}}
 
+
+/* V20: keep cake decorations behind page copy and render finale balloons/hearts in 2D */
+.page .illustration-cake{z-index:0;pointer-events:none}
+.page > :not(.illustration-cake){position:relative;z-index:1}
+.floating-3d-heart{color:#b8e5ff;text-shadow:none!important;filter:none!important;transform-style:flat!important;font-weight:400!important}
+.floating-3d-balloon.balloon-2d{width:36px;height:47px;border-radius:50% 50% 46% 46%;display:block;font-size:0!important;line-height:1;filter:none!important;text-shadow:none!important;transform-style:flat!important;box-shadow:none!important;background:#75b9ee;position:fixed}
+.floating-3d-balloon.balloon-2d:before{content:"";position:absolute;left:50%;bottom:-5px;transform:translateX(-50%);width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:0;border-top:7px solid #75b9ee}
+.floating-3d-balloon.balloon-2d:after{content:"";position:absolute;left:50%;top:100%;height:25px;border-left:1px solid rgba(77,123,166,.65);transform:translateX(-50%)}
+.floating-3d-balloon.balloon-blue{background:#7ebdf0}
+.floating-3d-balloon.balloon-blue:before{border-top-color:#7ebdf0}
+.floating-3d-balloon.balloon-sky{background:#b6e4ff}
+.floating-3d-balloon.balloon-sky:before{border-top-color:#b6e4ff}
+.floating-3d-balloon.balloon-pale{background:#d5efff}
+.floating-3d-balloon.balloon-pale:before{border-top-color:#d5efff}
+@media(max-width:600px){.floating-3d-balloon.balloon-2d{width:29px;height:39px}}
+
+/* V21: keep each word intact while the letter types in */
+#p2 .letter{overflow-wrap:normal;word-break:normal;hyphens:none;text-align:left}
+#p2 .letter .typed-word{display:inline-block;white-space:nowrap}
+#p2 .letter .typed-char{display:inline-block}
+@media(max-width:600px){
+  #p2 .letter{font-size:clamp(.98rem,4vw,1.12rem)!important;line-height:1.75!important}
+}
 </style>
 </head>
 <body>
@@ -451,19 +473,30 @@ function type(){
  clearInterval(typing);
  el.replaceChildren();
  let i=0;
+ let wordWrap=null;
  typing=setInterval(()=>{
    const ch=letter[i++];
-   const span=document.createElement('span');
-   span.className='typed-char';
-   span.textContent=ch;
-   if(ch===' ') span.innerHTML='&nbsp;';
-   el.appendChild(span);
+   if(ch===' '){
+     el.appendChild(document.createTextNode(' '));
+     wordWrap=null;
+   }else{
+     if(!wordWrap){
+       wordWrap=document.createElement('span');
+       wordWrap.className='typed-word';
+       el.appendChild(wordWrap);
+     }
+     const span=document.createElement('span');
+     span.className='typed-char';
+     span.textContent=ch;
+     wordWrap.appendChild(span);
+   }
    if(i>=letter.length){
      clearInterval(typing);
      el.dataset.done='1';
    }
  },38);
 }
+
 function pick(k,el){
  document.querySelectorAll('.choice').forEach(x=>x.classList.remove('selected'));
  el.classList.add('selected');
@@ -601,7 +634,7 @@ function visualFireworks(count=16){
 }
 
 function spawn3DHearts(count=30){
- const hearts=['🩵','🩵','🩵','💙','♡'];
+ const hearts=['♡','♥','♡','♥','♡'];
  for(let i=0;i<count;i++) setTimeout(()=>{
   const el=document.createElement('span');el.className='floating-3d-heart';el.textContent=hearts[Math.floor(Math.random()*hearts.length)];
   el.style.left=(Math.random()*96)+'vw';el.style.fontSize=(66+Math.random()*54)+'px';
@@ -610,10 +643,10 @@ function spawn3DHearts(count=30){
  },i*75);
 }
 function spawn3DBalloons(count=20){
- const balloons=['🎈','🎈','🎈','🩵','🩵','💙'];
+ const balloons=['blue','sky','pale','blue','sky','pale'];
  for(let i=0;i<count;i++) setTimeout(()=>{
-  const el=document.createElement('span');el.className='floating-3d-balloon';el.textContent=balloons[Math.floor(Math.random()*balloons.length)];
-  el.style.left=(Math.random()*96)+'vw';el.style.fontSize=(82+Math.random()*48)+'px';
+  const el=document.createElement('span');el.className='floating-3d-balloon balloon-2d balloon-'+balloons[Math.floor(Math.random()*balloons.length)];
+  el.style.left=(Math.random()*96)+'vw';el.style.fontSize=(52+Math.random()*24)+'px';
   el.style.setProperty('--duration',(6+Math.random()*3.5)+'s');el.style.setProperty('--sway',(Math.random()*60-30)+'px');el.style.setProperty('--spin',(Math.random()*50-25)+'deg');
   document.body.appendChild(el);setTimeout(()=>el.remove(),9500);
  },i*180);
